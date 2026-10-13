@@ -1,5 +1,5 @@
 import { n as TSS_SERVER_FUNCTION, t as createServerFn } from "./ssr.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/coach-DatLPNoX.js
+//#region node_modules/.nitro/vite/services/ssr/assets/coach-qLKtNnRU.js
 var createServerRpc = (serverFnMeta, splitImportFn) => {
 	const url = "/_serverFn/" + serverFnMeta.id;
 	return Object.assign(splitImportFn, {
@@ -31,20 +31,21 @@ var askCoach = createServerFn({ method: "POST" }).validator((input) => {
 		businessName: clean(String(input.businessName ?? "my LLC"), 80) || "my LLC"
 	};
 }).handler(askCoach_createServerFn_handler, async ({ data }) => {
-	const apiKey = process.env.XAI_API_KEY;
+	const apiKey = process.env.OPENROUTER_API_KEY;
 	if (!apiKey) return {
 		ok: false,
-		error: "The coach is not available in this environment."
+		error: "The coach is not configured. Add an OpenRouter API key to the server environment."
 	};
+	const model = process.env.OPENROUTER_MODEL || "openrouter/free";
 	const task = data.kind === "today" ? "Give the single next action for today, then three numbered micro-steps, then one sentence on what done looks like. No pep talk." : data.kind === "walkin" ? "Write a 90-second in-person script for walking into a Massachusetts town purchasing or IT office. Plain speech. Include what to hand them and how to leave." : data.kind === "email" ? "Write a short email to a municipal purchasing officer offering help on small software work. Subject line plus body under 140 words. No hype." : "Write a one-page capability statement in plain prose with these headings: Who we are, What we build, How we work, Proof, Contact. Use the business name given. Leave bracketed blanks where a fact is unknown. Do not invent clients, dollars, or certifications.";
-	const res = await fetch("https://api.x.ai/v1/chat/completions", {
+	const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json",
 			Authorization: `Bearer ${apiKey}`
 		},
 		body: JSON.stringify({
-			model: "grok-4.5",
+			model,
 			max_tokens: 700,
 			temperature: .4,
 			messages: [{
@@ -61,7 +62,7 @@ var askCoach = createServerFn({ method: "POST" }).validator((input) => {
 		try {
 			const errBody = await res.json();
 			const raw = typeof errBody.error === "string" ? errBody.error : errBody.error?.message;
-			if (raw?.toLowerCase().includes("credit") || res.status === 403) detail = "The coach is paused because this Grok account is out of credits. The path and pipeline still work. Add credits, then press the button again.";
+			if (res.status === 402 || res.status === 403) detail = "OpenRouter rejected this request. Check the API key and model access, then try again.";
 			else if (raw) detail = raw;
 		} catch {
 			detail = `The coach could not answer (${res.status}). Try once more.`;

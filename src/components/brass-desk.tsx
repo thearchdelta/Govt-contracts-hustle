@@ -2,6 +2,12 @@ import { useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import {
   ArrowRight,
+  ChevronDown,
+  Route as RouteIcon,
+  Layers,
+  LayoutGrid,
+  BriefcaseBusiness,
+  CheckCheck,
   Check,
   Copy,
   MapPin,
@@ -87,10 +93,19 @@ export function BrassDesk() {
   }
 
   return (
-    <div className="min-h-screen bg-bg text-ink">
+    <div className="desk-app min-h-screen text-ink">
       <div className="mx-auto grid max-w-6xl gap-6 px-4 py-6 md:grid-cols-[280px_1fr] md:px-6 md:py-10">
-        <aside className="flex flex-col gap-4">
-          <header className="rounded-card border border-line bg-surface p-5 shadow-[0_1px_0_rgba(26,22,18,0.04)]">
+        <div className="icon-rail">
+            <div className="rail-brand" aria-label="Brass Desk">B<span>.</span></div>
+            <div className="rail-links">
+              <button aria-label="The path" aria-pressed={tab === "path"} onClick={() => setTab("path")}><LayoutGrid /></button>
+              <button aria-label="Pipeline" aria-pressed={tab === "pipeline"} onClick={() => setTab("pipeline")}><BriefcaseBusiness /></button>
+              <button aria-label="Coach" aria-pressed={tab === "coach"} onClick={() => setTab("coach")}><Sparkles /></button>
+            </div>
+            <span className="rail-footer">BD</span>
+          </div>
+          <aside className="desk-sidebar flex flex-col gap-4">
+          <header className="glass-panel brand-panel rounded-card p-5">
             <p className="text-xs font-semibold tracking-[0.18em] text-brass uppercase">
               Boston · 50 miles
             </p>
@@ -108,7 +123,7 @@ export function BrassDesk() {
             </label>
           </header>
 
-          <section className="rounded-card border border-pine bg-pine p-5 text-bg">
+          <section className="next-panel rounded-card p-5 text-bg">
             <p className="text-xs font-semibold tracking-[0.16em] uppercase opacity-80">Do this next</p>
             <h2 className="mt-2 text-2xl leading-tight">{next?.title}</h2>
             <p className="mt-2 text-sm leading-relaxed text-pine-soft">{next?.why}</p>
@@ -124,7 +139,7 @@ export function BrassDesk() {
             </button>
           </section>
 
-          <div className="rounded-card border border-line bg-surface p-5">
+          <div className="glass-panel rounded-card p-5">
             <div className="flex items-end justify-between">
               <p className="font-display text-3xl tabular-nums leading-none">{pct}%</p>
               <p className="text-sm text-muted">
@@ -140,8 +155,13 @@ export function BrassDesk() {
           </div>
         </aside>
 
-        <main className="min-w-0">
-          <nav className="mb-4 flex gap-2 overflow-x-auto">
+        <main className="desk-main min-w-0">
+          <div className="workspace-heading"><p className="workspace-eyebrow">YOUR BUSINESS WORKSPACE</p><h2>Welcome to your desk</h2><p>A clear path from getting ready to getting your first contract.</p></div>
+          <div className="desk-metrics">
+            <div className="metric-card"><span>Checklist progress <CheckCheck className="size-4" /></span><strong>{pct}<small>%</small></strong><p>{finished} of {STEPS.length} steps completed</p></div>
+            <div className="metric-card"><span>Your pipeline <BriefcaseBusiness className="size-4" /></span><strong>{leads.filter(lead => !lead.sample).length}<small> leads</small></strong><p>One conversation can open a door.</p></div>
+          </div>
+          <nav aria-label="Workspace" className="glass-nav mb-6 flex gap-2 overflow-x-auto">
             {(
               [
                 ["path", "The path"],
@@ -152,13 +172,14 @@ export function BrassDesk() {
               <button
                 key={id}
                 type="button"
+                aria-current={tab === id ? "page" : undefined}
                 onClick={() => setTab(id)}
                 className={
-                  "min-h-11 shrink-0 rounded-full px-4 text-sm font-semibold " +
+                  "nav-tab min-h-11 shrink-0 rounded-full px-4 text-sm font-semibold " +
                   (tab === id ? "bg-ink text-bg" : "border border-line bg-surface text-ink")
                 }
               >
-                {label}
+                {id === "path" ? <RouteIcon className="size-4" /> : id === "pipeline" ? <Layers className="size-4" /> : <Sparkles className="size-4" />} {label}
               </button>
             ))}
           </nav>
@@ -166,14 +187,14 @@ export function BrassDesk() {
           {tab === "path" && (
             <div className="flex flex-col gap-6">
               {grouped.map(({ phase, steps }) => (
-                <section key={phase}>
-                  <h2 className="mb-3 text-xl">{phase}</h2>
+                <section key={phase} className="phase-section">
+                  <h2 className="phase-title mb-3 text-xl">{phase}</h2>
                   <ol className="flex flex-col gap-3">
                     {steps.map((step) => {
                       const open = openId === step.id;
                       const checked = Boolean(done[step.id]);
                       return (
-                        <li key={step.id} className="rounded-card border border-line bg-surface">
+                        <li key={step.id} className={"glass-panel step-card rounded-card " + (open ? "step-open" : "")}>
                           <div className="flex items-start gap-3 p-4">
                             <button
                               type="button"
@@ -191,12 +212,13 @@ export function BrassDesk() {
                             </button>
                             <button
                               type="button"
+                              aria-expanded={open}
                               onClick={() => setOpenId(open ? "" : step.id)}
                               className="min-w-0 flex-1 text-left"
                             >
                               <span className="flex items-baseline justify-between gap-3">
                                 <span className="font-display text-xl leading-tight">{step.title}</span>
-                                <span className="shrink-0 text-xs font-semibold text-brass">{step.minutes}</span>
+                                <span className="step-meta shrink-0 text-xs font-semibold text-brass">{step.minutes}<ChevronDown className={"size-4 " + (open ? "chevron-open" : "")} /></span>
                               </span>
                               <span className="mt-1 block text-sm text-muted">{step.why}</span>
                             </button>
@@ -229,7 +251,7 @@ export function BrassDesk() {
           {tab === "pipeline" && (
             <section className="flex flex-col gap-4">
               <form
-                className="grid gap-3 rounded-card border border-line bg-surface p-4 md:grid-cols-2"
+                className="glass-panel grid gap-3 rounded-card p-4 md:grid-cols-2"
                 onSubmit={(e) => {
                   e.preventDefault();
                   if (!draft.name.trim() || !draft.where.trim()) return;
@@ -274,7 +296,7 @@ export function BrassDesk() {
 
               <ul className="flex flex-col gap-3">
                 {leads.map((lead) => (
-                  <li key={lead.id} className="rounded-card border border-line bg-surface p-4">
+                  <li key={lead.id} className="glass-panel rounded-card p-4">
                     <div className="flex items-start justify-between gap-3">
                       <div>
                         <p className="font-display text-xl leading-tight">{lead.name}</p>
@@ -325,7 +347,7 @@ export function BrassDesk() {
           )}
 
           {tab === "coach" && (
-            <section className="rounded-card border border-line bg-surface p-4 md:p-6">
+            <section className="glass-panel rounded-card p-4 md:p-6">
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <h2 className="text-2xl">The coach</h2>

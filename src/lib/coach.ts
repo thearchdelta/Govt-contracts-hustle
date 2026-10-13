@@ -27,10 +27,11 @@ export const askCoach = createServerFn({ method: "POST" })
     };
   })
   .handler(async ({ data }) => {
-    const apiKey = process.env.XAI_API_KEY;
+    const apiKey = process.env.OPENROUTER_API_KEY;
     if (!apiKey) {
-      return { ok: false as const, error: "The coach is not available in this environment." };
+      return { ok: false as const, error: "The coach is not configured. Add an OpenRouter API key to the server environment." };
     }
+    const model = process.env.OPENROUTER_MODEL || "openrouter/free";
 
     const task =
       data.kind === "today"
@@ -41,14 +42,14 @@ export const askCoach = createServerFn({ method: "POST" })
             ? "Write a short email to a municipal purchasing officer offering help on small software work. Subject line plus body under 140 words. No hype."
             : "Write a one-page capability statement in plain prose with these headings: Who we are, What we build, How we work, Proof, Contact. Use the business name given. Leave bracketed blanks where a fact is unknown. Do not invent clients, dollars, or certifications.";
 
-    const res = await fetch("https://api.x.ai/v1/chat/completions", {
+    const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: "grok-4.5",
+        model,
         max_tokens: 700,
         temperature: 0.4,
         messages: [
@@ -70,9 +71,8 @@ export const askCoach = createServerFn({ method: "POST" })
       try {
         const errBody = (await res.json()) as { error?: string | { message?: string } };
         const raw = typeof errBody.error === "string" ? errBody.error : errBody.error?.message;
-        if (raw?.toLowerCase().includes("credit") || res.status === 403) {
-          detail =
-            "The coach is paused because this Grok account is out of credits. The path and pipeline still work. Add credits, then press the button again.";
+        if (res.status === 402 || res.status === 403) {
+          detail = "OpenRouter rejected this request. Check the API key and model access, then try again.";
         } else if (raw) {
           detail = raw;
         }
