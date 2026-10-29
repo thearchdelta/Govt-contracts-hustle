@@ -4,3 +4,11 @@ node_modules/
 .env
 .env.*
 !.env.example
+
+# Generated builds and Cloudflare local state/secrets
+.output/
+.vercel/output/
+.wrangler/
+.tanstack/
+.dev.vars
+.dev.vars.*
