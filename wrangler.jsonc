@@ -2,9 +2,19 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "govt-contracts-hustle",
   "compatibility_date": "2026-10-29",
-  "compatibility_flags": ["nodejs_compat"],
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
   "workers_dev": true,
   "vars": {
     "OPENROUTER_MODEL": "openrouter/free"
-  }
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "brass-desk",
+      "database_id": "REPLACE_WITH_YOUR_D1_DATABASE_ID",
+      "migrations_dir": "d1-migrations"
+    }
+  ]
 }

@@ -163,7 +163,9 @@ export default defineConfig(({ command, isPreview, mode }) => {
     strictPort: true,
   },
   resolve: { tsconfigPaths: true },
+  ssr: { external: ["cloudflare:workers"] },
   plugins: [
+    { name: "cloudflare-runtime-binding", enforce: "pre", resolveId(id) { if (id === "cloudflare:workers") return { id, external: true }; } },
     pgliteBootstrapPlugin(),
     // Before tanstackStart so /auth/popup never falls through to the SPA.
     authPopupPlugin(),

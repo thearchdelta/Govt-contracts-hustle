@@ -37,7 +37,7 @@ Every subsequent push to the production branch triggers a new build and deployme
 - The AI coach responds after adding the secret. Without a key, it displays a configuration message; the rest of the app still works.
 - The install tutorial (`/?install=1&platform=ios`) and manifest (`/__grok/manifest.webmanifest`) load.
 
-Checklist progress and leads are stored in this browser's local storage. Publishing does not transfer existing local data, sync devices, or add accounts. No database is required. The existing coach endpoint has no sign-in restriction: anyone with access to the published app can call it using the server's configured key. If this is a personal workspace, restrict access with Cloudflare Access before enabling a funded key.
+Checklist progress and leads sync to a private, password-protected D1 workspace after clicking Connect. A local browser copy remains as a backup. Enter the same password on another device to load the shared workspace. The first connection imports local data only when the database is empty; an existing cloud workspace takes precedence. Passwords remain in memory and must be re-entered after refresh. Concurrent-device save conflicts stop cloud writes and show an error instead of silently overwriting newer data. The existing coach endpoint has no sign-in restriction: anyone with access to the published app can call it using the server's configured key. If this is a personal workspace, restrict access with Cloudflare Access before enabling a funded key.
 
 ## Development and deployment commands
 
@@ -55,3 +55,13 @@ For a manual deployment after building: `npx wrangler login`, then `npm run depl
 Nitro generates `.output/server/wrangler.json` and a `.wrangler/deploy/config.json` redirect during the Cloudflare build. Wrangler follows that redirect to deploy the server modules and `.output/public` assets together. Build before previewing or deploying. Generated output and local Cloudflare secrets are ignored by Git.
 
 The original `npm run build` retains the Vercel target. Use `build:cloudflare` for Cloudflare; do not configure it as a static Vite site or upload only the public asset directory.
+
+## D1 setup (before publishing)
+
+1. In Cloudflare, create a D1 database named `brass-desk`.
+2. Copy its database ID into `wrangler.jsonc`, replacing `REPLACE_WITH_YOUR_D1_DATABASE_ID`, and commit the change.
+3. In the database console, execute the SQL in `d1-migrations/0001_desk.sql`. Alternatively run `npx wrangler d1 migrations apply brass-desk --remote`.
+4. Add a Worker runtime **Secret** named `DESK_PASSWORD`, with a strong password of your choosing. Save and deploy the settings. Do not prefix it with VITE_.
+5. Open the app, enter that password in Cloud storage, and click Connect. Changes then save automatically. Until connected, edits remain local only. If a save fails, the status explains the failure and the local backup remains available. Refresh and reconnect to load the latest cloud version.
+
+This is one shared workspace, not a multi-user account system. Anyone with the workspace password can read and change its data. Existing AI coach access is separate from this storage password.
