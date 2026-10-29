@@ -1,0 +1,5 @@
+CREATE TABLE IF NOT EXISTS desk_state (
+  id INTEGER PRIMARY KEY CHECK (id = 1),
+  body TEXT NOT NULL,
+  revision INTEGER NOT NULL
+);

@@ -18,7 +18,10 @@
     "check:auth": "node scripts/check-auth-invariant.mjs",
     "test": "node --test 'scripts/**/*.test.mjs' && node --experimental-strip-types --test src/lib/app-data/app-data.test.ts src/lib/app-data/readiness-schedule.test.ts src/lib/auth/gate-identity.test.ts src/lib/auth/sign-in-gate.test.ts src/lib/preview-path-prefix.test.ts",
     "lint": "eslint .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "build:cloudflare": "node scripts/with-app-env.mjs vite build --mode cloudflare",
+    "deploy:cloudflare": "wrangler deploy",
+    "preview:cloudflare": "wrangler dev"
   },
   "dependencies": {
     "@electric-sql/pglite": "^0.5.4",
@@ -75,6 +78,7 @@
     "typescript": "^5.7.0",
     "vaul": "^1.1.2",
     "vite": "^8.2.0",
+    "wrangler": "4.156.0",
     "zod": "^4.4.0",
     "zustand": "^5.0.0"
   },
