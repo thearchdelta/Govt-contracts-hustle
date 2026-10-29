@@ -13,7 +13,7 @@
     {
       "binding": "DB",
       "database_name": "brass-desk",
-      "database_id": "REPLACE_WITH_YOUR_D1_DATABASE_ID",
+      "database_id": "db2d3ea5-16c3-4618-9100-c0c39375748a",
       "migrations_dir": "d1-migrations"
     }
   ]
